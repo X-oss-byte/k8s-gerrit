@@ -68,15 +68,14 @@ class GerritAbstractReindexer(abc.ABC):
         return unready_indices
 
     def _check_index_versions(self):
-        indices = self._get_indices()
-
-        if not indices:
+        if indices := self._get_indices():
+            return not any(
+                index not in indices
+                or index_attrs["version"] is not indices[index]
+                for index, index_attrs in self.configured_indices.items()
+            )
+        else:
             return False
-
-        for index, index_attrs in self.configured_indices.items():
-            if index not in indices or index_attrs["version"] is not indices[index]:
-                return False
-        return True
 
     def reindex(self, indices=None):
         LOG.info("Starting to reindex.")
@@ -108,8 +107,7 @@ class GerritAbstractReindexer(abc.ABC):
             self.reindex()
             return
 
-        unready_indices = self._get_unready_indices()
-        if unready_indices:
+        if unready_indices := self._get_unready_indices():
             self.reindex(unready_indices)
 
         if not self._check_index_versions():
@@ -136,13 +134,12 @@ class GerritLuceneReindexer(GerritAbstractReindexer):
 
 class GerritElasticSearchReindexer(GerritAbstractReindexer):
     def _get_elasticsearch_config(self):
-        es_config = {}
         gerrit_config = git.GitConfigParser(
             os.path.join(self.gerrit_site_path, "etc", "gerrit.config")
         )
-        es_config["prefix"] = gerrit_config.get(
-            "elasticsearch.prefix", default=""
-        ).lower()
+        es_config = {
+            "prefix": gerrit_config.get("elasticsearch.prefix", default="").lower()
+        }
         es_config["server"] = gerrit_config.get(
             "elasticsearch.server", default=""
         ).lower()

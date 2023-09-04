@@ -127,11 +127,7 @@ def ldap_credentials(test_cluster):
     passwords = (
         base64.b64decode(ldap_secret.data["passwords"]).decode("utf-8").split(",")
     )
-    credentials = {}
-    for i, user in enumerate(users):
-        credentials[user] = passwords[i]
-
-    yield credentials
+    yield {user: passwords[i] for i, user in enumerate(users)}
 
 
 @pytest.fixture(scope="session")

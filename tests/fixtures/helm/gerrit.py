@@ -110,7 +110,7 @@ class GerritDeployment(AbstractDeployment):
         self.storageclass = storageclass
         self.ldap_credentials = ldap_credentials
 
-        self.chart_name = "gerrit-" + self.namespace
+        self.chart_name = f"gerrit-{self.namespace}"
         self.chart_path = os.path.join(
             # pylint: disable=E1101
             Path(git.discover_repository(os.path.realpath(__file__))).parent.absolute(),

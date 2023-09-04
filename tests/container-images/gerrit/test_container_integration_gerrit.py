@@ -97,7 +97,7 @@ class TestGerritStartScript:
     @pytest.mark.timeout(60)
     def test_gerrit_httpd_is_responding(self, container_run):
         status = None
-        while not status == 200:
+        while status != 200:
             try:
                 response = requests.get(f"http://localhost:{container_run.port}")
                 status = response.status_code

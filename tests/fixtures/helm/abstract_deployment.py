@@ -12,7 +12,7 @@ class AbstractDeployment(abc.ABC):
     def __init__(self, tmp_dir):
         self.tmp_dir = tmp_dir
         self.namespace = "".join(
-            [random.choice(string.ascii_letters) for n in range(8)]
+            [random.choice(string.ascii_letters) for _ in range(8)]
         ).lower()
         self.values_file = self._set_values_file()
         self.chart_opts = {}
@@ -93,7 +93,6 @@ class AbstractDeployment(abc.ABC):
 
         timeout = time() + limit
         while time() < timeout:
-            is_finished = func()
-            if is_finished:
+            if is_finished := func():
                 return True
         return False

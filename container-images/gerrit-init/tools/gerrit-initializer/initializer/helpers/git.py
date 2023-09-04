@@ -34,9 +34,8 @@ class GitConfigParser:
         options = self._execute_shell_command_and_get_output_lines(command)
         option_list = []
         for opt in options:
-            parsed_opt = {}
             full_key, value = opt.split("=", 1)
-            parsed_opt["value"] = value
+            parsed_opt = {"value": value}
             full_key = full_key.split(".")
             parsed_opt["section"] = full_key[0]
             if len(full_key) == 2:
