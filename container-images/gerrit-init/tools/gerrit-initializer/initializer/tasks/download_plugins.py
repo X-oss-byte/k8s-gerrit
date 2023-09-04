@@ -72,8 +72,8 @@ class AbstractPluginInstaller(ABC):
     def _install_plugins_from_container(self):
         source_dir = "/var/plugins"
         for plugin in self.required_plugins:
-            source_file = os.path.join(source_dir, plugin + ".jar")
-            target_file = os.path.join(self.plugin_dir, plugin + ".jar")
+            source_file = os.path.join(source_dir, f"{plugin}.jar")
+            target_file = os.path.join(self.plugin_dir, f"{plugin}.jar")
             if os.path.exists(target_file) and self._get_file_sha(
                 source_file
             ) == self._get_file_sha(target_file):
@@ -99,11 +99,11 @@ class AbstractPluginInstaller(ABC):
         file_hash = hashlib.sha1()
         with open(file, "rb") as f:
             while True:
-                chunk = f.read(64000)
-                if not chunk:
-                    break
-                file_hash.update(chunk)
+                if chunk := f.read(64000):
+                    file_hash.update(chunk)
 
+                else:
+                    break
         LOG.debug("SHA1 of file '%s' is %s", file, file_hash.hexdigest())
 
         return file_hash.hexdigest()
@@ -130,15 +130,14 @@ class AbstractPluginInstaller(ABC):
                     LOG.info("Removed symlink %s", f)
         for lib in self.config.install_as_library:
             plugin_path = os.path.join(self.plugin_dir, f"{lib}.jar")
-            if os.path.exists(plugin_path):
-                try:
-                    os.symlink(plugin_path, os.path.join(self.lib_dir, f"{lib}.jar"))
-                except FileExistsError:
-                    continue
-            else:
+            if not os.path.exists(plugin_path):
                 raise FileNotFoundError(
                     f"Could not find plugin {lib} to symlink to lib-directory."
                 )
+            try:
+                os.symlink(plugin_path, os.path.join(self.lib_dir, f"{lib}.jar"))
+            except FileExistsError:
+                continue
 
     def execute(self):
         self._create_plugins_dir()

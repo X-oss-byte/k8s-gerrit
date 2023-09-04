@@ -195,8 +195,7 @@ class HelmClient:
             bool -- Whether the chart is installed
         """
 
-        for installed_chart in self.list(namespace):
-            if installed_chart["name"] == chart:
-                return True
-
-        return False
+        return any(
+            installed_chart["name"] == chart
+            for installed_chart in self.list(namespace)
+        )

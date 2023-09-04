@@ -83,7 +83,7 @@ def base_url(container_run):
 @pytest.fixture(scope="function")
 def random_repo_name():
     return "".join(
-        [random.choice(string.ascii_letters + string.digits) for n in range(8)]
+        [random.choice(string.ascii_letters + string.digits) for _ in range(8)]
     )
 
 

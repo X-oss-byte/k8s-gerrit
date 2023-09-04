@@ -88,7 +88,7 @@ def gerrit_deployment_with_other_plugin_wrong_sha(plugin_list, gerrit_deployment
 def get_gerrit_plugin_list(gerrit_url, user="admin", password="secret"):
     list_plugins_url = f"{gerrit_url}/a/plugins/?all"
     response = requests.get(list_plugins_url, auth=(user, password))
-    if not response.status_code == 200:
+    if response.status_code != 200:
         return None
     body = response.text
     return json.loads(body[body.index("\n") + 1 :])

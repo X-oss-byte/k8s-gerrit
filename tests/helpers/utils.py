@@ -38,4 +38,6 @@ def check_if_ancestor_image_is_inherited(image, ancestor):
 
 
 def create_random_string(length=8):
-    return "".join([random.choice(string.ascii_letters) for n in range(length)]).lower()
+    return "".join(
+        [random.choice(string.ascii_letters) for _ in range(length)]
+    ).lower()

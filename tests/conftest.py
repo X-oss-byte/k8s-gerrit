@@ -153,8 +153,8 @@ def pytest_collection_modifyitems(config, items):
 
 
 def pytest_runtest_makereport(item, call):
-    if "incremental" in item.keywords:
-        if call.excinfo is not None:
+    if call.excinfo is not None:
+        if "incremental" in item.keywords:
             parent = item.parent
             parent._previousfailed = item
 
@@ -183,18 +183,18 @@ def repository_root():
 
 @pytest.fixture(scope="session")
 def container_images(repository_root):
-    image_paths = {}
-    for directory in os.listdir(os.path.join(repository_root, "container-images")):
-        image_paths[directory] = os.path.join(
-            repository_root, "container-images", directory
+    return {
+        directory: os.path.join(repository_root, "container-images", directory)
+        for directory in os.listdir(
+            os.path.join(repository_root, "container-images")
         )
-    return image_paths
+    }
 
 
 @pytest.fixture(scope="session")
 def docker_registry(request):
     registry = request.config.getoption("--registry")
-    if registry and not registry[-1] == "/":
+    if registry and registry[-1] != "/":
         registry += "/"
     return registry
 
@@ -202,7 +202,7 @@ def docker_registry(request):
 @pytest.fixture(scope="session")
 def docker_org(request):
     org = request.config.getoption("--org")
-    if org and not org[-1] == "/":
+    if org and org[-1] != "/":
         org += "/"
     return org
 
@@ -252,8 +252,7 @@ def docker_build(
 
 @pytest.fixture(scope="session")
 def docker_login(request, docker_client, docker_registry):
-    username = request.config.getoption("--registry-user")
-    if username:
+    if username := request.config.getoption("--registry-user"):
         docker_client.login(
             username=username,
             password=request.config.getoption("--registry-pwd"),
